@@ -165,14 +165,15 @@ export const Main = ({
                         isPlaying={isPlaying}
                       />
                     ))}
-                    {/* {scene.has_faqs && (
+                    {scene.has_faqs && (
                       <SceneFaqs
                         currentScenId={scene.id}
                         sceneIndex={index}
                         isInRemotion={true}
                         changePlayerStatus={changePlayerStatus}
+                        faqs={inputProps.faqs}
                       />
-                    )} */}
+                    )}
                   </AbsoluteFill>
                 )}
               </TransitionSeries.Sequence>

@@ -68,6 +68,7 @@ const Home: NextPage = () => {
         id: data.id ?? "",
         chapters: data.chapters ?? [],
         selectedChapterId: data.selectedChapterId ?? null,
+        faqs: data.faqs,
       };
       setTotalDurationInFrames(
         props.scenes.reduce(

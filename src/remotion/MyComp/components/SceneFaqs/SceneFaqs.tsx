@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import { Html } from "react-konva-utils";
 import Icon from "./../icons/icons";
-import { useFaqs } from "../../../../context/FaqsContext";
 import { Faq } from "../../../../types/interfaces";
 import { CustomPaper, IconFaqContainer, TitleSeeAll } from "./SceneFaqs.style";
 import {
@@ -11,8 +9,6 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from "@mui/material";
-import { useGetFaqs } from "~/api/faqs.config";
-import { useRouter } from "next/router";
 import { SceneFaqsProps } from "./SceneFaqs.types";
 
 const SceneFaqs = ({
@@ -20,52 +16,12 @@ const SceneFaqs = ({
   sceneIndex,
   isInRemotion,
   changePlayerStatus,
+  faqs,
 }: SceneFaqsProps) => {
-  const {
-    faqs: contextFaqs,
-    saveFaqs,
-    setHasFetchedForScene,
-    hasFetchedScenes,
-    setIsShowAll,
-    isShowAll,
-    setShowAllFaqs,
-    showAllFaqs,
-  } = useFaqs();
+  const [isShowAll, setIsShowAll] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const toggleModal = () => setIsOpen(!isOpen);
   const closeModal = () => setIsOpen(false);
-  const [actualSceneIndex, setActualSceneIndex] = useState(currentScenId);
-  const { data: faqsApi } = useGetFaqs(actualSceneIndex);
-  const { data: allFaqs } = useGetFaqs(
-    undefined,
-    Number(useRouter().query.versionId),
-  );
-
-  useEffect(() => {
-    if (
-      !hasFetchedScenes[sceneIndex] &&
-      faqsApi?.results &&
-      faqsApi.results.length > 0
-    ) {
-      saveFaqs(sceneIndex, faqsApi?.results ?? []);
-      setHasFetchedForScene(sceneIndex, true);
-    }
-  }, [contextFaqs, faqsApi]);
-
-  useEffect(() => {
-    if (currentScenId !== actualSceneIndex) {
-      setActualSceneIndex(currentScenId);
-      if (!contextFaqs[sceneIndex]?.length) {
-        setHasFetchedForScene(sceneIndex, false);
-      }
-    }
-  }, [currentScenId]);
-
-  useEffect(() => {
-    if (allFaqs?.results) {
-      setShowAllFaqs(allFaqs.results);
-    }
-  }, [allFaqs]);
 
   useEffect(() => {
     if (changePlayerStatus) {
@@ -178,10 +134,12 @@ const SceneFaqs = ({
                 </div>
               </TitleSeeAll>
               {isShowAll
-                ? showAllFaqs.map((faq, index) => renderFaqs({ faq, index }))
-                : contextFaqs[sceneIndex]?.map((faq, index) =>
-                    renderFaqs({ faq, index }),
-                  )}
+                ? faqs.map((faq, index) => renderFaqs({ faq, index }))
+                : faqs.map((faq, index) => {
+                    if (faq.scene === currentScenId?.toString()) {
+                      return renderFaqs({ faq, index });
+                    }
+                  })}
             </CustomPaper>
           </ClickAwayListener>
         )}
@@ -189,20 +147,7 @@ const SceneFaqs = ({
     );
   };
 
-  return !isInRemotion ? (
-    <Html
-      divProps={{
-        style: {
-          width: "50px",
-          left: "inherit",
-          right: 0,
-          transformOrigin: "right top",
-        },
-      }}
-    >
-      {returnContentFaqs()}
-    </Html>
-  ) : (
+  return (
     <div
       style={{
         position: "absolute",
